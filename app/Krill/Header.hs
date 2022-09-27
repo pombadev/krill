@@ -1,4 +1,4 @@
-module Header (make) where
+module Krill.Header (make) where
 
 import qualified Brick
 import qualified Brick.Widgets.Border as B
@@ -17,7 +17,8 @@ makeHeaders :: (T.Text, BS.BorderStyle) -> Brick.Widget ()
 makeHeaders (styleName, sty) =
     Brick.withBorderStyle sty $
         B.border $
-            Brick.txt $ "  " <> styleName <> " "
+            Brick.txt $
+                "  " <> styleName <> " "
 
 make :: [Brick.Widget ()]
 make =
