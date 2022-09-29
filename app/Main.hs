@@ -37,7 +37,7 @@ appEvent (VtyEvent ev) =
         EvKey (KChar 'r') [] -> suspendAndResume $ return Recent
         EvKey (KChar 'c') [] -> suspendAndResume $ return Comments
         EvKey (KChar 's') [] -> suspendAndResume $ return Search
-        EvKey (KChar '?') [] -> suspendAndResume $ return Search
+        EvKey (KChar '?') [] -> suspendAndResume $ return Help
         _ -> return ()
 appEvent _ = return ()
 
