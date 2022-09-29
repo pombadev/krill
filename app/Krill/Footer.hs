@@ -1,7 +1,7 @@
 module Krill.Footer (make) where
 
-import qualified Brick
+import Brick (Widget, hBox, txt)
 
-make :: Brick.Widget n
+make :: Widget n
 make =
-    Brick.hBox [Brick.txt "Press Esc/q to quit"]
+    hBox [txt "Press Esc/q to quit"]

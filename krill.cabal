@@ -21,6 +21,7 @@ executable krill
     Krill.Body
     Krill.Footer
     Krill.Header
+    Krill.Types
 
   default-extensions:
     DuplicateRecordFields
@@ -28,8 +29,13 @@ executable krill
     OverloadedRecordDot
 
   build-depends:
-    , base   ^>=4.16.3.0
+    , base           ^>=4.16.3.0
     , brick
+    , config-ini
+    , microlens
+    , microlens-mtl
+    , microlens-th
+    , mtl
     , text
     , vty
 

@@ -1,50 +1,66 @@
 module Main (main) where
 
-import qualified Brick
-import qualified Brick.Widgets.Center as C
+import Brick (
+    App (..),
+    BrickEvent (VtyEvent),
+    Widget,
+    appAttrMap,
+    attrMap,
+    attrName,
+    defaultMain,
+    hBox,
+    halt,
+    on,
+    showFirstCursor,
+    suspendAndResume,
+    (<=>),
+ )
 
-import Brick (BrickEvent (VtyEvent), defaultMain, halt, showFirstCursor, (<=>))
-import Brick.AttrMap (attrMap)
+import Brick.AttrMap (AttrMap)
+import Brick.Types (EventM)
+import Brick.Widgets.Center (hCenter)
 
-import qualified Brick.Types as T
-import qualified Graphics.Vty as V
+import Graphics.Vty (Key (KChar, KEsc), black, white)
+import Graphics.Vty.Input (Event (EvKey))
 
--- import Brick.Widgets.Core ((<+>))
-
--- import Brick.Widgets.Core (str)
 import qualified Krill.Body as Body
 import qualified Krill.Footer as Footer
 import qualified Krill.Header as Header
+import Krill.Types (KrillState (..))
 
-data KrillState = Active | Recent | Comments | Search deriving (Show)
-
-appEvent :: BrickEvent () e -> T.EventM () s ()
+appEvent :: BrickEvent () e -> EventM () KrillState ()
 appEvent (VtyEvent ev) =
     case ev of
-        V.EvKey V.KEsc [] -> halt
-        V.EvKey (V.KChar 'q') [] -> halt
+        EvKey KEsc [] -> halt
+        EvKey (KChar 'q') [] -> halt
+        EvKey (KChar 'a') [] -> suspendAndResume $ return Active
+        EvKey (KChar 'r') [] -> suspendAndResume $ return Recent
+        EvKey (KChar 'c') [] -> suspendAndResume $ return Comments
+        EvKey (KChar 's') [] -> suspendAndResume $ return Search
+        EvKey (KChar '?') [] -> suspendAndResume $ return Search
         _ -> return ()
 appEvent _ = return ()
 
-ui :: KrillState -> [Brick.Widget ()]
+ui :: KrillState -> [Widget ()]
 ui s =
-    [ C.hCenter
-        (Brick.hBox Header.make)
-        -- <=> C.hCenter (str (show s))
-        -- <+> Brick.txt "Text"
+    [ hCenter
+        (hBox (Header.make s))
         <=> Body.make s
-        <=> C.hCenter Footer.make
+        <=> hCenter Footer.make
     ]
+
+attributeMap :: AttrMap
+attributeMap = attrMap (white `on` black) [(attrName "activeBtn", black `on` white)]
 
 main :: IO ()
 main = do
     let app =
-            Brick.App
+            App
                 { appDraw = ui
                 , appChooseCursor = showFirstCursor
                 , appHandleEvent = appEvent
                 , appStartEvent = return ()
-                , appAttrMap = const $ attrMap V.defAttr []
+                , appAttrMap = const attributeMap
                 }
 
     state <- defaultMain app Active

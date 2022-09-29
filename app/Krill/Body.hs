@@ -1,12 +1,13 @@
 module Krill.Body (make) where
 
-import qualified Brick
-import qualified Brick.Widgets.Border as B
-import qualified Brick.Widgets.Border.Style as BS
-import qualified Brick.Widgets.Center as C
+import Brick (Widget, str)
+import Brick.Widgets.Border (border)
+import Brick.Widgets.Border.Style (unicode)
+import Brick.Widgets.Center (center)
+import Brick.Widgets.Core (withBorderStyle)
 
-make :: Show s => s -> Brick.Widget n
+make :: Show s => s -> Widget n
 make mystate =
-    Brick.withBorderStyle BS.unicode $
-        B.border $
-            C.center (Brick.str (show mystate))
+    withBorderStyle unicode $
+        border $
+            center (str (show mystate))
