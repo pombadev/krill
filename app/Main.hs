@@ -11,8 +11,8 @@ import Brick (
     hBox,
     halt,
     on,
+    put,
     showFirstCursor,
-    suspendAndResume,
     (<=>),
  )
 
@@ -33,11 +33,11 @@ appEvent (VtyEvent ev) =
     case ev of
         EvKey KEsc [] -> halt
         EvKey (KChar 'q') [] -> halt
-        EvKey (KChar 'a') [] -> suspendAndResume $ return Active
-        EvKey (KChar 'r') [] -> suspendAndResume $ return Recent
-        EvKey (KChar 'c') [] -> suspendAndResume $ return Comments
-        EvKey (KChar 's') [] -> suspendAndResume $ return Search
-        EvKey (KChar '?') [] -> suspendAndResume $ return Help
+        EvKey (KChar 'a') [] -> put Active
+        EvKey (KChar 'r') [] -> put Recent
+        EvKey (KChar 'c') [] -> put Comments
+        EvKey (KChar 's') [] -> put Search
+        EvKey (KChar '?') [] -> put Help
         _ -> return ()
 appEvent _ = return ()
 
