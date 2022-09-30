@@ -1,36 +1,24 @@
-{-# OPTIONS_GHC -Wno-redundant-constraints #-}
-
 module Krill.Header (make) where
 
 import Brick (Widget, attrName, txt, withAttr, withBorderStyle)
 import Brick.Widgets.Border (border)
 import Brick.Widgets.Border.Style (BorderStyle, unicodeRounded)
-import Data.Text (Text, pack)
+import Data.Text (pack)
 
-import Krill.Types (KrillState)
+import Krill.Types (KrillState, genState)
 
-headers :: [(Text, BorderStyle)]
-headers =
-    [ ("Active", unicodeRounded)
-    , ("Recent", unicodeRounded)
-    , ("Comments", unicodeRounded)
-    , ("Search", unicodeRounded)
-    ]
-
-makeHeaders :: KrillState -> (Text, BorderStyle) -> Widget ()
-makeHeaders st (view, sty) = do
-    let stt = pack (show st)
+makeHeaders :: KrillState -> (KrillState, BorderStyle) -> Widget ()
+makeHeaders state (view, sty) = do
+    let item = txt (pack (show view))
 
     withBorderStyle sty $
         border $
-            if stt == view
-                then
-                    withAttr (attrName "activeBtn") $
-                        txt view
-                else txt view
+            if state == view
+                then withAttr (attrName "activeBtn") item
+                else item
 
 make :: KrillState -> [Widget ()]
-make st = do
-    let hs =
-            makeHeaders st <$> headers
-     in hs
+make state = do
+    let headers =
+            makeHeaders state <$> (map (\state' -> (state', unicodeRounded)) genState)
+     in headers

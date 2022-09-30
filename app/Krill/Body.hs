@@ -7,7 +7,7 @@ import Brick.Widgets.Center (center)
 import Brick.Widgets.Core (withBorderStyle)
 
 make :: Show s => s -> Widget n
-make mystate =
+make state =
     withBorderStyle unicode $
         border $
-            center (str (show mystate))
+            center (str (show state))

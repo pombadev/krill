@@ -8,17 +8,21 @@ import Brick (
     attrMap,
     attrName,
     defaultMain,
+    emptyWidget,
     hBox,
     halt,
     on,
     put,
     showFirstCursor,
+    str,
+    vBox,
     (<=>),
  )
 
 import Brick.AttrMap (AttrMap)
 import Brick.Types (EventM)
 import Brick.Widgets.Center (hCenter)
+import Brick.Widgets.Dialog (dialog, renderDialog)
 
 import Graphics.Vty (Key (KChar, KEsc), black, white)
 import Graphics.Vty.Input (Event (EvKey))
@@ -31,23 +35,36 @@ import Krill.Types (KrillState (..))
 appEvent :: BrickEvent () e -> EventM () KrillState ()
 appEvent (VtyEvent ev) =
     case ev of
-        EvKey KEsc [] -> halt
+        EvKey KEsc [] -> put Hottest
         EvKey (KChar 'q') [] -> halt
         EvKey (KChar 'a') [] -> put Active
         EvKey (KChar 'r') [] -> put Recent
-        EvKey (KChar 'c') [] -> put Comments
-        EvKey (KChar 's') [] -> put Search
+        EvKey (KChar 'h') [] -> put Hottest
         EvKey (KChar '?') [] -> put Help
         _ -> return ()
 appEvent _ = return ()
 
 ui :: KrillState -> [Widget ()]
-ui s =
-    [ hCenter
-        (hBox (Header.make s))
-        <=> Body.make s
-        <=> hCenter Footer.make
-    ]
+ui state =
+    let helpDialog = renderDialog $ dialog (Just " Help ") Nothing 50
+     in [ hCenter
+            (hBox (Header.make state))
+            <=> ( if state == Help
+                    then
+                        helpDialog
+                            ( vBox
+                                [ hCenter $ str "Press `q` to quit"
+                                , hCenter $ str "Press `a` for Active"
+                                , hCenter $ str "Press `r` for Recent"
+                                , hCenter $ str "Press `h` for Hottest"
+                                , hCenter $ str "Press `?` for Help"
+                                ]
+                            )
+                    else emptyWidget
+                )
+            <=> Body.make state
+            <=> hCenter Footer.make
+        ]
 
 attributeMap :: AttrMap
 attributeMap = attrMap (white `on` black) [(attrName "activeBtn", black `on` white)]
@@ -63,6 +80,6 @@ main = do
                 , appAttrMap = const attributeMap
                 }
 
-    state <- defaultMain app Active
+    _ <- defaultMain app Active
 
-    print $ "State: " ++ show state
+    return ()
