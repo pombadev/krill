@@ -4,27 +4,29 @@ Unofficial TUI lobste.rs client
 
 # API
 
-// default page
+```bash
+# default page
 curl https://lobste.rs/hottest -H 'Accept: application/json'
 
-// active
+# active
 curl https://lobste.rs/active -H 'Accept: application/json'
 
-// recent
+# recent
 curl https://lobste.rs/newest -H 'Accept: application/json'
 
-// story
+# story
 curl https://lobste.rs/s/r9oskz -H 'Accept: application/json'
 
-// domains
+# domains
 curl 'https://lobste.rs/domains/github.com' -H 'Accept: application/json'
 
-// tags
+# tags
 curl 'https://lobste.rs/tags' -H 'Accept: application/json'
 
-// tag
+# tag
 curl 'https://lobste.rs/t/rust' -H 'Accept: application/json'
 curl 'https://lobste.rs/t/rust,ruby' -H 'Accept: application/json'
 
-// pagination
+# pagination
 curl '<url>/page/1'
+```
