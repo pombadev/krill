@@ -11,6 +11,7 @@ import Brick (
     emptyWidget,
     hBox,
     halt,
+    modify,
     neverShowCursor,
     on,
     str,
@@ -22,7 +23,7 @@ import Brick.AttrMap (AttrMap)
 import Brick.Types (EventM)
 import Brick.Widgets.Center (hCenter)
 import Brick.Widgets.Dialog (dialog, renderDialog)
-import Control.Monad.State (modify)
+
 import Data.Maybe (fromMaybe)
 import Graphics.Vty (Key (KChar, KEsc), black, white)
 import Graphics.Vty.Input (Event (EvKey))
