@@ -11,9 +11,8 @@ import Brick (
     emptyWidget,
     hBox,
     halt,
+    neverShowCursor,
     on,
-    put,
-    showFirstCursor,
     str,
     vBox,
     (<=>),
@@ -23,41 +22,43 @@ import Brick.AttrMap (AttrMap)
 import Brick.Types (EventM)
 import Brick.Widgets.Center (hCenter)
 import Brick.Widgets.Dialog (dialog, renderDialog)
-
+import Control.Monad.State (modify)
+import Data.Maybe (fromMaybe)
 import Graphics.Vty (Key (KChar, KEsc), black, white)
 import Graphics.Vty.Input (Event (EvKey))
 
 import qualified Krill.Body as Body
 import qualified Krill.Footer as Footer
 import qualified Krill.Header as Header
-import Krill.Types (KrillState (..))
+import Krill.Types (KrillState (..), KrillView (..))
 
-appEvent :: BrickEvent () e -> EventM () KrillState ()
+appEvent :: BrickEvent KrillView e -> EventM KrillView KrillState ()
 appEvent (VtyEvent ev) =
     case ev of
-        EvKey KEsc [] -> put Hottest
+        EvKey KEsc [] -> modify (\s -> KrillState{prev = Nothing, current = fromMaybe Hottest s.prev})
+        EvKey (KChar 'a') [] -> modify (\s -> KrillState{current = Active, prev = Just s.current})
+        EvKey (KChar 'r') [] -> modify (\s -> KrillState{current = Recent, prev = Just s.current})
+        EvKey (KChar 'h') [] -> modify (\s -> KrillState{current = Hottest, prev = Just s.current})
+        EvKey (KChar '?') [] -> modify (\s -> KrillState{current = Help, prev = Just s.current})
         EvKey (KChar 'q') [] -> halt
-        EvKey (KChar 'a') [] -> put Active
-        EvKey (KChar 'r') [] -> put Recent
-        EvKey (KChar 'h') [] -> put Hottest
-        EvKey (KChar '?') [] -> put Help
         _ -> return ()
 appEvent _ = return ()
 
-ui :: KrillState -> [Widget ()]
+ui :: KrillState -> [Widget KrillView]
 ui state =
     let helpDialog = renderDialog $ dialog (Just " Help ") Nothing 50
      in [ hCenter
             (hBox (Header.make state))
-            <=> ( if state == Help
+            <=> ( if state.current == Help
                     then
                         helpDialog
                             ( vBox
-                                [ hCenter $ str "Press `q` to quit"
-                                , hCenter $ str "Press `a` for Active"
+                                [ hCenter $ str "Press `a` for Active"
                                 , hCenter $ str "Press `r` for Recent"
                                 , hCenter $ str "Press `h` for Hottest"
                                 , hCenter $ str "Press `?` for Help"
+                                , hCenter $ str "Press `q` to quit"
+                                , hCenter $ str "Press `Esc` to go back"
                                 ]
                             )
                     else emptyWidget
@@ -67,19 +68,28 @@ ui state =
         ]
 
 attributeMap :: AttrMap
-attributeMap = attrMap (white `on` black) [(attrName "activeBtn", black `on` white)]
+attributeMap =
+    attrMap
+        (white `on` black)
+        [ (attrName "activeBtn", black `on` white)
+        -- , (dialogAttr, white `on` blue)
+        -- , (buttonAttr, black `on` white)
+        -- , (buttonSelectedAttr, bg red)
+        ]
 
 main :: IO ()
 main = do
     let app =
             App
                 { appDraw = ui
-                , appChooseCursor = showFirstCursor
+                , appChooseCursor = neverShowCursor
                 , appHandleEvent = appEvent
                 , appStartEvent = return ()
                 , appAttrMap = const attributeMap
                 }
 
-    _ <- defaultMain app Active
+    state <- defaultMain app KrillState{prev = Nothing, current = Hottest}
+
+    print $ "Selected: " <> show state
 
     return ()

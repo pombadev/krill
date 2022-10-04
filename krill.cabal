@@ -29,12 +29,9 @@ executable krill
     OverloadedRecordDot
 
   build-depends:
-    , base           ^>=4.16.3.0
+    , base        ^>=4.16.3.0
     , brick
     , config-ini
-    , microlens
-    , microlens-mtl
-    , microlens-th
     , mtl
     , text
     , vty
@@ -45,4 +42,4 @@ executable krill
     -Wall -Wcompat -Widentities -Wincomplete-record-updates
     -Wincomplete-uni-patterns -Wmissing-export-lists
     -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
-    -threaded -rtsopts -with-rtsopts=-N
+    -threaded -rtsopts -with-rtsopts=-N -Wno-unrecognised-pragmas
