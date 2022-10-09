@@ -8,7 +8,6 @@ import Brick (
     attrMap,
     attrName,
     defaultMain,
-    emptyWidget,
     hBox,
     halt,
     modify,
@@ -31,16 +30,20 @@ import Graphics.Vty.Input (Event (EvKey))
 import qualified Krill.Body as Body
 import qualified Krill.Footer as Footer
 import qualified Krill.Header as Header
-import Krill.Types (KrillState (..), KrillView (..))
+import Krill.Types (KrillAppState (..), KrillState (..), KrillView (..))
+import qualified Krill.Utils
+
+import Control.Concurrent (forkIO)
+import Text.Printf (printf)
 
 appEvent :: BrickEvent KrillView e -> EventM KrillView KrillState ()
 appEvent (VtyEvent ev) =
     case ev of
-        EvKey KEsc [] -> modify (\s -> KrillState{prev = Nothing, current = fromMaybe Hottest s.prev})
-        EvKey (KChar 'a') [] -> modify (\s -> KrillState{current = Active, prev = Just s.current})
-        EvKey (KChar 'r') [] -> modify (\s -> KrillState{current = Recent, prev = Just s.current})
-        EvKey (KChar 'h') [] -> modify (\s -> KrillState{current = Hottest, prev = Just s.current})
-        EvKey (KChar '?') [] -> modify (\s -> KrillState{current = Help, prev = Just s.current})
+        EvKey KEsc [] -> modify (\s -> s{prev = Nothing, current = fromMaybe Hottest s.prev})
+        EvKey (KChar 'a') [] -> modify (\s -> s{current = Active, prev = Just s.current})
+        EvKey (KChar 'r') [] -> modify (\s -> s{current = Recent, prev = Just s.current})
+        EvKey (KChar 'h') [] -> modify (\s -> s{current = Hottest, prev = Just s.current})
+        EvKey (KChar '?') [] -> modify (\s -> s{current = Help, prev = Just s.current})
         EvKey (KChar 'q') [] -> halt
         _ -> return ()
 appEvent _ = return ()
@@ -48,25 +51,24 @@ appEvent _ = return ()
 ui :: KrillState -> [Widget KrillView]
 ui state =
     let helpDialog = renderDialog $ dialog (Just " Help ") Nothing 50
-     in [ hCenter
-            (hBox (Header.make state))
-            <=> ( if state.current == Help
-                    then
-                        helpDialog
-                            ( vBox
-                                [ hCenter $ str "Press `a` for Active"
-                                , hCenter $ str "Press `r` for Recent"
-                                , hCenter $ str "Press `h` for Hottest"
-                                , hCenter $ str "Press `?` for Help"
-                                , hCenter $ str "Press `q` to quit"
-                                , hCenter $ str "Press `Esc` to go back"
-                                ]
-                            )
-                    else emptyWidget
-                )
-            <=> Body.make state
-            <=> hCenter Footer.make
-        ]
+     in if state.current == Help
+            then
+                [ helpDialog
+                    ( vBox
+                        [ hCenter $ str "Press `a` for Active"
+                        , hCenter $ str "Press `r` for Recent"
+                        , hCenter $ str "Press `h` for Hottest"
+                        , hCenter $ str "Press `?` for Help"
+                        , hCenter $ str "Press `q` to quit"
+                        , hCenter $ str "Press `Esc` to go back"
+                        ]
+                    )
+                ]
+            else
+                [ hCenter (hBox (Header.make state))
+                    <=> Body.make state
+                    <=> hCenter Footer.make
+                ]
 
 attributeMap :: AttrMap
 attributeMap =
@@ -89,8 +91,14 @@ main = do
                 , appAttrMap = const attributeMap
                 }
 
-    state <- defaultMain app KrillState{prev = Nothing, current = Hottest}
+    let s = KrillState{kState = Loading, prev = Nothing, current = Hottest}
 
-    print $ "Selected: " <> show state
+    _ <- forkIO $ do
+        _ <- Krill.Utils.hottest
+        return ()
+
+    state <- defaultMain app s
+
+    printf "Selected state is `%s`, previous state was `%s`\n" (show state.current) (show state.prev)
 
     return ()
