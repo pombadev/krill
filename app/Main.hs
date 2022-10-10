@@ -33,7 +33,7 @@ import qualified Krill.Header as Header
 import Krill.Types (KrillAppState (..), KrillState (..), KrillView (..))
 import qualified Krill.Utils
 
-import Control.Concurrent (forkIO)
+-- import Control.Concurrent (forkIO)
 import Text.Printf (printf)
 
 appEvent :: BrickEvent KrillView e -> EventM KrillView KrillState ()
@@ -93,9 +93,7 @@ main = do
 
     let s = KrillState{kState = Loading, prev = Nothing, current = Hottest}
 
-    _ <- forkIO $ do
-        _ <- Krill.Utils.hottest
-        return ()
+    _ <- Krill.Utils.hottest
 
     state <- defaultMain app s
 

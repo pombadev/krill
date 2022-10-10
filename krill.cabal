@@ -25,13 +25,16 @@ executable krill
     Krill.Utils
 
   default-extensions:
+    DeriveGeneric
     DuplicateRecordFields
     OverloadedStrings
     OverloadedRecordDot
 
   build-depends:
+    , aeson
     , base        ^>=4.16.3.0
     , brick
+    , bytestring
     , config-ini
     , request
     , text
