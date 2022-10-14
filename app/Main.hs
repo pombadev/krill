@@ -33,7 +33,8 @@ import qualified Krill.Header as Header
 import Krill.Types (KrillAppState (..), KrillState (..), KrillView (..))
 import qualified Krill.Utils
 
--- import Control.Concurrent (forkIO)
+import Control.Monad (when)
+import qualified Krill.Cli as Cli
 import Text.Printf (printf)
 
 appEvent :: BrickEvent KrillView e -> EventM KrillView KrillState ()
@@ -82,21 +83,24 @@ attributeMap =
 
 main :: IO ()
 main = do
-    let app =
-            App
-                { appDraw = ui
-                , appChooseCursor = neverShowCursor
-                , appHandleEvent = appEvent
-                , appStartEvent = return ()
-                , appAttrMap = const attributeMap
-                }
+    tui <- Cli.run
 
-    let s = KrillState{kState = Loading, prev = Nothing, current = Hottest}
+    when tui $ do
+        let app =
+                App
+                    { appDraw = ui
+                    , appChooseCursor = neverShowCursor
+                    , appHandleEvent = appEvent
+                    , appStartEvent = return ()
+                    , appAttrMap = const attributeMap
+                    }
 
-    _ <- Krill.Utils.hottest
+        let s = KrillState{kState = Loading, prev = Nothing, current = Hottest}
 
-    state <- defaultMain app s
+        _ <- Krill.Utils.hottest
 
-    printf "Selected state is `%s`, previous state was `%s`\n" (show state.current) (show state.prev)
+        state <- defaultMain app s
 
-    return ()
+        printf "Selected state is `%s`, previous state was `%s`\n" (show state.current) (show state.prev)
+
+        return ()

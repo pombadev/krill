@@ -1,6 +1,6 @@
 cabal-version:      2.4
 name:               krill
-version:            0.1.0.0
+version:            0.1.0
 synopsis:           TUI client for lobste.rs
 homepage:           https://github.com/pombadev/krill
 bug-reports:        https://github.com/pombadev/krill/issues
@@ -19,6 +19,7 @@ executable krill
   main-is:            Main.hs
   other-modules:
     Krill.Body
+    Krill.Cli
     Krill.Footer
     Krill.Header
     Krill.Types
