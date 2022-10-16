@@ -22,6 +22,7 @@ executable krill
     Krill.Cli
     Krill.Footer
     Krill.Header
+    Krill.Help
     Krill.Types
     Krill.Utils
 

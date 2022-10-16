@@ -27,21 +27,14 @@ run = do
   case getOpt Permute options args of
     (f, _, []) ->
       case f of
-        [Help] -> do
-          putStr (usageInfo header options)
-          exitSuccess
-        [Version] -> do
-          putStrLn "v0.1.0"
-          exitSuccess
-        [Verbose] -> do
-          putStrLn "verbose"
-          exitSuccess
+        [Help] -> putStr (usageInfo header options) >> exitSuccess
+        [Version] -> putStrLn "v0.1.0" >> exitSuccess
+        [Verbose] -> putStrLn "verbose" >> exitSuccess
         [] -> return True
-        _ -> do
-          putStrLn ("error: multiple flags can't be specified\n\n" ++ header)
-          exitFailure
+        _ ->
+          putStrLn ("error: multiple flags can't be specified\n\n" ++ header) >> exitFailure
     (_, _, errs) -> do
-      putStr (concat errs ++ usageInfo header options)
+      putStr $ concat errs ++ usageInfo header options
       exitFailure
  where
   header = "Usage: krill [-vVh]"

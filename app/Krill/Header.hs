@@ -19,7 +19,4 @@ makeHeaders state (view, sty) = do
                 else item
 
 make :: KrillState -> [Widget KrillView]
-make state = do
-    let headers =
-            makeHeaders state <$> map (\state' -> (state', unicodeRounded)) generateViews
-     in headers
+make state = makeHeaders state <$> map (\state' -> (state', unicodeRounded)) generateViews

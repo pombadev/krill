@@ -13,15 +13,12 @@ import Brick (
     modify,
     neverShowCursor,
     on,
-    str,
-    vBox,
     (<=>),
  )
 
 import Brick.AttrMap (AttrMap)
 import Brick.Types (EventM)
 import Brick.Widgets.Center (hCenter)
-import Brick.Widgets.Dialog (dialog, renderDialog)
 
 import Data.Maybe (fromMaybe)
 import Graphics.Vty (Key (KChar, KEsc), black, white)
@@ -30,8 +27,8 @@ import Graphics.Vty.Input (Event (EvKey))
 import qualified Krill.Body as Body
 import qualified Krill.Footer as Footer
 import qualified Krill.Header as Header
+import qualified Krill.Help as KrillHelp
 import Krill.Types (KrillAppState (..), KrillState (..), KrillView (..))
-import qualified Krill.Utils
 
 import Control.Monad (when)
 import qualified Krill.Cli as Cli
@@ -51,25 +48,13 @@ appEvent _ = return ()
 
 ui :: KrillState -> [Widget KrillView]
 ui state =
-    let helpDialog = renderDialog $ dialog (Just " Help ") Nothing 50
-     in if state.current == Help
-            then
-                [ helpDialog
-                    ( vBox
-                        [ hCenter $ str "Press `a` for Active"
-                        , hCenter $ str "Press `r` for Recent"
-                        , hCenter $ str "Press `h` for Hottest"
-                        , hCenter $ str "Press `?` for Help"
-                        , hCenter $ str "Press `q` to quit"
-                        , hCenter $ str "Press `Esc` to go back"
-                        ]
-                    )
-                ]
-            else
-                [ hCenter (hBox (Header.make state))
-                    <=> Body.make state
-                    <=> hCenter Footer.make
-                ]
+    case state.current of
+        Help -> KrillHelp.make state
+        _ ->
+            [ hCenter (hBox (Header.make state))
+                <=> Body.make state
+                <=> hCenter (hBox $ Footer.make state)
+            ]
 
 attributeMap :: AttrMap
 attributeMap =
@@ -97,7 +82,7 @@ main = do
 
         let s = KrillState{kState = Loading, prev = Nothing, current = Hottest}
 
-        _ <- Krill.Utils.hottest
+        -- _ <- Krill.Utils.hottest
 
         state <- defaultMain app s
 

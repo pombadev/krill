@@ -22,7 +22,3 @@ data KrillState = KrillState
     , kState :: KrillAppState
     }
     deriving (Show, Eq, Ord)
-
--- setState :: KrillState -> KrillView -> KrillState
--- setState s v =
---     KrillState{current = v, prev = Just s.current}
