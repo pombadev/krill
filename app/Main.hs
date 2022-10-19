@@ -15,23 +15,24 @@ import Brick (
     on,
     (<=>),
  )
-
 import Brick.AttrMap (AttrMap)
 import Brick.Types (EventM)
 import Brick.Widgets.Center (hCenter)
-
-import Data.Maybe (fromMaybe)
 import Graphics.Vty (Key (KChar, KEsc), black, white)
 import Graphics.Vty.Input (Event (EvKey))
 
 import qualified Krill.Body as Body
+import qualified Krill.Cli as Cli
 import qualified Krill.Footer as Footer
 import qualified Krill.Header as Header
 import qualified Krill.Help as KrillHelp
 import Krill.Types (KrillAppState (..), KrillState (..), KrillView (..))
+import Krill.Utils (Lobster)
+import qualified Krill.Utils
 
+import Control.Concurrent (Chan, forkIO, newChan)
 import Control.Monad (when)
-import qualified Krill.Cli as Cli
+import Data.Maybe (fromMaybe)
 import Text.Printf (printf)
 
 appEvent :: BrickEvent KrillView e -> EventM KrillView KrillState ()
@@ -46,13 +47,13 @@ appEvent (VtyEvent ev) =
         _ -> return ()
 appEvent _ = return ()
 
-ui :: KrillState -> [Widget KrillView]
-ui state =
+ui :: KrillState -> Chan [Lobster] -> [Widget KrillView]
+ui state c =
     case state.current of
         Help -> KrillHelp.make state
         _ ->
             [ hCenter (hBox (Header.make state))
-                <=> Body.make state
+                <=> Body.make state c
                 <=> hCenter (hBox $ Footer.make state)
             ]
 
@@ -68,12 +69,14 @@ attributeMap =
 
 main :: IO ()
 main = do
-    tui <- Cli.run
+    isTui <- Cli.run
 
-    when tui $ do
+    when isTui $ do
+        comm <- newChan
+
         let app =
                 App
-                    { appDraw = ui
+                    { appDraw = \s -> ui s comm
                     , appChooseCursor = neverShowCursor
                     , appHandleEvent = appEvent
                     , appStartEvent = return ()
@@ -82,7 +85,7 @@ main = do
 
         let s = KrillState{kState = Loading, prev = Nothing, current = Hottest}
 
-        -- _ <- Krill.Utils.hottest
+        _ <- forkIO $ Krill.Utils.hottest comm
 
         state <- defaultMain app s
 

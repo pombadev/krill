@@ -27,7 +27,7 @@ run = do
   case getOpt Permute options args of
     (f, _, []) ->
       case f of
-        [Help] -> putStr (usageInfo header options) >> exitSuccess
+        [Help] -> putStr ("Unofficial TUI client for lobste.rs\n\n" ++ usageInfo header options) >> exitSuccess
         [Version] -> putStrLn "v0.1.0" >> exitSuccess
         [Verbose] -> putStrLn "verbose" >> exitSuccess
         [] -> return True

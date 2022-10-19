@@ -13,7 +13,7 @@ data KrillView = Hottest | Active | Recent | Help
 generateViews :: [KrillView]
 generateViews = [minBound .. maxBound]
 
-data KrillAppState = Booted | Loading | Loaded
+data KrillAppState = Loading | Loaded
     deriving (Eq, Show, Ord)
 
 data KrillState = KrillState

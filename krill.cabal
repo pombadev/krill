@@ -1,7 +1,7 @@
 cabal-version:      2.4
 name:               krill
 version:            0.1.0
-synopsis:           TUI client for lobste.rs
+synopsis:           Unofficial TUI client for lobste.rs
 homepage:           https://github.com/pombadev/krill
 bug-reports:        https://github.com/pombadev/krill/issues
 license:            MIT

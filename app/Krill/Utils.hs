@@ -1,14 +1,22 @@
 {-# OPTIONS_GHC -Wno-type-defaults #-}
 
-module Krill.Utils (hottest) where
+module Krill.Utils (hottest, Lobster (..)) where
 
-import Network.HTTP.Request
+import Network.HTTP.Request (
+    Method (GET),
+    Request (Request),
+    Response (responseBody),
+    send,
+ )
 
 -- import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Aeson
 import Data.ByteString (fromStrict)
 
 -- import Data.Maybe (fromJust)
+
+import Control.Concurrent (Chan, writeChan)
+import Data.Maybe (fromJust)
 import GHC.Generics (Generic)
 
 data Lobster = Lobster
@@ -21,8 +29,8 @@ data Lobster = Lobster
 instance FromJSON Lobster
 instance ToJSON Lobster
 
-hottest :: IO ()
-hottest = do
+hottest :: Chan [Lobster] -> IO ()
+hottest c = do
     let req = do
             Request
                 GET
@@ -34,8 +42,7 @@ hottest = do
 
     let body = responseBody res
 
-    let c = decode (fromStrict body) :: Maybe [Lobster]
+    -- crash if no value for now
+    let r = fromJust $ decode (fromStrict body)
 
-    print c
-
-    return ()
+    writeChan c r
