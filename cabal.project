@@ -1,6 +1,0 @@
-packages: .
-
-source-repository-package
-  type:     git
-  location: https://github.com/pombadev/request.git
-  tag:      b4426a18662ec9da858fd5aa74eee6c61dee7fa0
